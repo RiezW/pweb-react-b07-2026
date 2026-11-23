@@ -3,8 +3,11 @@
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { SkillProfile } from "./components/SkillProfile";
 import { JobExplorer } from "./components/JobExplorer";
-import type { Application } from "./types/application";
+import { ManualApplicationForm } from "./components/ManualApplicationForm";
+
+import type { Application, WorkMode } from "./types/application";
 import type { JobListing } from "./types/job";
+
 import "./App.css";
 
 function App() {
@@ -62,6 +65,44 @@ function App() {
     setApplications((current) => [...current, newApplication]);
   }
 
+  // ini bagian Ciko
+
+  function handleManualApplication(
+    company: string,
+    role: string,
+    workMode: WorkMode,
+    status: "WISHLIST" | "APPLIED",
+    requiredSkills: string[],
+    cvVersion?: string,
+    appliedDate?: string
+  ) {
+    const timestamp = new Date().toISOString();
+
+    const newApplication: Application = {
+      id: crypto.randomUUID(),
+      company,
+      role,
+      workMode,
+      status,
+      requiredSkills,
+      cvVersion,
+      appliedDate,
+      lastUpdatedAt: timestamp,
+      checklist: [],
+      activityLogs: [
+        {
+          id: crypto.randomUUID(),
+          timestamp,
+          message: "Lamaran ditambahkan secara manual.",
+        },
+      ],
+    };
+
+    setApplications((current) => [...current, newApplication]);
+  }
+
+  // ini bagian ciko
+
   function handleAddSkill(skill: string) {
     setCaptainSkills((currentSkills) => [...currentSkills, skill]);
   }
@@ -111,6 +152,15 @@ function App() {
             />
           </section>
         </div>
+
+        {/* ini bagian Ciko */}
+
+        <ManualApplicationForm
+          applications={applications}
+          onSubmitApplication={handleManualApplication}
+        />
+
+        {/* ini bagian ciko */}
       </main>
     </div>
   );

@@ -131,9 +131,11 @@ export function JobExplorer({
     setRetryCount((current) => current + 1);
   }
 
-  function handleFallback() {
-    setDataSource("fallback");
-  }
+function handleSourceToggle() {
+  setDataSource((current) =>
+    current === "remotive" ? "fallback" : "remotive"
+  );
+}
 
   return (
     <section className="job-explorer">
@@ -161,15 +163,15 @@ export function JobExplorer({
               Coba Lagi
             </button>
 
-            {dataSource === "remotive" && (
-              <button
-                type="button"
-                className="fallback-button"
-                onClick={handleFallback}
-              >
-                Gunakan Data Lokal
-              </button>
-            )}
+            <button
+              type="button"
+              className="fallback-button"
+              onClick={handleSourceToggle}
+            >
+              {dataSource === "remotive"
+                ? "Gunakan Data Lokal"
+                : "Kembali ke Remotive API"}
+            </button>
           </div>
         </div>
       )}
@@ -212,6 +214,16 @@ export function JobExplorer({
             <div className="sort-indicator">
               Match Tertinggi
             </div>
+            <button
+              type="button"
+              className="source-toggle-button"
+              onClick={handleSourceToggle}
+              disabled={isLoading}
+            >
+              {dataSource === "remotive"
+                ? "Gunakan Data Lokal"
+                : "Gunakan Remotive API"}
+            </button>
           </div>
 
           {/* ini bagian ciko */}

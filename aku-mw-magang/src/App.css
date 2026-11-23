@@ -592,4 +592,144 @@
   cursor: not-allowed;
 }
 
+/* ini bagian Ciko */
+
+/* mulai fitur 2 */
+
+.form-error {
+  margin: 5px 0 0;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Manual Application Form */
+
+.manual-application-form {
+  margin-top: 28px;
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.manual-application-form h2 {
+  margin: 0 0 8px;
+  color: #172554;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.manual-application-form > p {
+  margin: 0 0 24px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.manual-application-form form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.manual-application-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.manual-application-form label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.manual-application-form input,
+.manual-application-form select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.manual-application-form input:focus,
+.manual-application-form select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.manual-application-form input::placeholder {
+  color: #94a3b8;
+}
+
+.manual-application-form form > button {
+  grid-column: 1 / -1;
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 8px;
+  background: #164273;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.manual-application-form form > button:hover {
+  background: #1e5a96;
+}
+
+.manual-application-form .form-error {
+  margin: 0;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Responsive Layout */
+
+@media (max-width: 650px) {
+  .manual-application-form {
+    padding: 20px;
+  }
+
+  .manual-application-form form {
+    grid-template-columns: 1fr;
+  }
+
+  .manual-application-form form > button {
+    width: 100%;
+  }
+}
+
+.source-toggle-button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.source-toggle-button:hover:not(:disabled) {
+  background: #dbeafe;
+}
+
+.source-toggle-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ini bagian ciko */
