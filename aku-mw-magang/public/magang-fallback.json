@@ -1,0 +1,137 @@
+[
+  {
+    "id": 1001,
+    "title": "Frontend Intern",
+    "company_name": "Nusantara Cloud",
+    "category": "Software Development",
+    "candidate_required_location": "Surabaya (Hybrid)",
+    "salary": "Rp 4.500.000",
+    "tags": ["React", "TypeScript", "CSS"]
+  },
+  {
+    "id": 1002,
+    "title": "Backend Developer Intern",
+    "company_name": "Garuda FinTech",
+    "category": "Software Development",
+    "candidate_required_location": "Jakarta (Remote)",
+    "salary": "Rp 5.500.000",
+    "tags": ["Node.js", "Express", "PostgreSQL", "Prisma"]
+  },
+  {
+    "id": 1003,
+    "title": "Software Engineer Intern",
+    "company_name": "Bintang Commerce",
+    "category": "Software Development",
+    "candidate_required_location": "Indonesia (Remote)",
+    "salary": "Rp 6.000.000",
+    "tags": ["React", "TypeScript", "CSS", "Git"]
+  },
+  {
+    "id": 1004,
+    "title": "DevOps Intern",
+    "company_name": "AwanMerdeka Cloud",
+    "category": "Software Development",
+    "candidate_required_location": "Jakarta (Hybrid)",
+    "salary": "Rp 5.200.000",
+    "tags": ["Linux", "Docker", "Git", "CI/CD"]
+  },
+  {
+    "id": 1005,
+    "title": "UI Developer Intern",
+    "company_name": "Pixel Nusantara",
+    "category": "Software Development",
+    "candidate_required_location": "Bandung (Onsite)",
+    "salary": "Rp 3.500.000",
+    "tags": ["HTML", "CSS", "JavaScript", "React"]
+  },
+  {
+    "id": 1006,
+    "title": "Mobile Developer Intern",
+    "company_name": "Digital Garuda",
+    "category": "Software Development",
+    "candidate_required_location": "Yogyakarta (Hybrid)",
+    "salary": "Rp 4.000.000",
+    "tags": ["JavaScript", "React Native", "Git"]
+  },
+  {
+    "id": 1007,
+    "title": "Data Analyst Intern",
+    "company_name": "DataKita Indonesia",
+    "category": "Data Science",
+    "candidate_required_location": "Jakarta (Remote)",
+    "salary": "Rp 4.500.000",
+    "tags": ["Python", "SQL", "Excel", "Statistics"]
+  },
+  {
+    "id": 1008,
+    "title": "Machine Learning Intern",
+    "company_name": "AI Nusantara",
+    "category": "Data Science",
+    "candidate_required_location": "Bandung (Hybrid)",
+    "salary": "Rp 5.000.000",
+    "tags": ["Python", "Machine Learning", "TensorFlow"]
+  },
+  {
+    "id": 1009,
+    "title": "QA Engineer Intern",
+    "company_name": "Quality First Tech",
+    "category": "Software Development",
+    "candidate_required_location": "Surabaya (Onsite)",
+    "salary": "Rp 3.800.000",
+    "tags": ["Testing", "JavaScript", "Postman", "Git"]
+  },
+  {
+    "id": 1010,
+    "title": "Full-Stack Developer Intern",
+    "company_name": "EduSpark Indonesia",
+    "category": "Software Development",
+    "candidate_required_location": "Indonesia (Remote)",
+    "salary": "Rp 5.000.000",
+    "tags": ["React", "Node.js", "Express", "PostgreSQL"]
+  },
+  {
+    "id": 1011,
+    "title": "Cyber Security Intern",
+    "company_name": "SecureNet Indonesia",
+    "category": "Software Development",
+    "candidate_required_location": "Jakarta (Hybrid)",
+    "salary": "Rp 4.800.000",
+    "tags": ["Linux", "Networking", "Python", "Security"]
+  },
+  {
+    "id": 1012,
+    "title": "Cloud Engineer Intern",
+    "company_name": "CloudKarya",
+    "category": "Software Development",
+    "candidate_required_location": "Indonesia (Remote)",
+    "salary": "Rp 5.300.000",
+    "tags": ["AWS", "Docker", "Linux", "Networking"]
+  },
+  {
+    "id": 1013,
+    "title": "Web Developer Intern",
+    "company_name": "Kreasi Digital",
+    "category": "Software Development",
+    "candidate_required_location": "Malang (Onsite)",
+    "salary": "Rp 3.500.000",
+    "tags": ["HTML", "CSS", "JavaScript", "PHP"]
+  },
+  {
+    "id": 1014,
+    "title": "Database Engineer Intern",
+    "company_name": "DataSphere",
+    "category": "Software Development",
+    "candidate_required_location": "Jakarta (Hybrid)",
+    "salary": "Rp 4.700.000",
+    "tags": ["PostgreSQL", "MySQL", "SQL", "Database"]
+  },
+  {
+    "id": 1015,
+    "title": "IT Support Intern",
+    "company_name": "TeknoSolusi",
+    "category": "IT Support",
+    "candidate_required_location": "Surabaya (Onsite)",
+    "salary": "Rp 3.200.000",
+    "tags": ["Networking", "Linux", "Windows", "Troubleshooting"]
+  }
+]
