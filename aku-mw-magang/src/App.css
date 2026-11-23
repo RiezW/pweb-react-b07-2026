@@ -732,4 +732,142 @@
   cursor: not-allowed;
 }
 
+.wishlist-section {
+  margin-top: 32px;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.wishlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.wishlist-header h2 {
+  margin: 0 0 5px;
+  font-size: 21px;
+}
+
+.wishlist-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.wishlist-count {
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.wishlist-list {
+  display: grid;
+  gap: 12px;
+}
+
+.wishlist-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 17px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.wishlist-card-info h3 {
+  margin: 0 0 5px;
+  font-size: 16px;
+}
+
+.wishlist-card-info p {
+  margin: 0 0 8px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.wishlist-work-mode {
+  color: #475569;
+  font-size: 12px;
+}
+
+.wishlist-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wishlist-match {
+  padding: 6px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.wishlist-match.high {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.wishlist-match.medium {
+  background: #fef3c7;
+  color: #a16207;
+}
+
+.wishlist-match.low {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.wishlist-remove-button {
+  padding: 7px 11px;
+  border: 1px solid #fecaca;
+  border-radius: 7px;
+  background: #fff;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.wishlist-remove-button:hover {
+  background: #fef2f2;
+}
+
+.wishlist-empty {
+  padding: 35px 15px;
+  text-align: center;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+}
+
+.wishlist-empty h3 {
+  margin: 0 0 8px;
+}
+
+.wishlist-empty p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+@media (max-width: 650px) {
+  .wishlist-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .wishlist-card-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
 /* ini bagian ciko */

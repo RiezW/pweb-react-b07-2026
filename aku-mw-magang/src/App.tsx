@@ -4,9 +4,9 @@ import { useLocalStorage } from "./hooks/useLocalStorage";
 import { SkillProfile } from "./components/SkillProfile";
 import { JobExplorer } from "./components/JobExplorer";
 import { ManualApplicationForm } from "./components/ManualApplicationForm";
-
 import type { Application, WorkMode } from "./types/application";
 import type { JobListing } from "./types/job";
+import { Wishlist } from "./components/Wishlist";
 
 import "./App.css";
 
@@ -119,6 +119,14 @@ function App() {
     });
   }
 
+  function handleRemoveWishlist(applicationId: string) {
+    setApplications((current) =>
+      current.filter(
+        (application) => application.id !== applicationId
+      )
+    );
+  }
+
   return (
     <div className="dashboard">
       <header className="navbar">
@@ -153,14 +161,20 @@ function App() {
           </section>
         </div>
 
-        {/* ini bagian Ciko */}
+        
 
         <ManualApplicationForm
           applications={applications}
           onSubmitApplication={handleManualApplication}
         />
 
-        {/* ini bagian ciko */}
+        <Wishlist
+          applications={applications}
+          captainSkills={captainSkills}
+          onRemove={handleRemoveWishlist}
+        />
+
+        
       </main>
     </div>
   );
