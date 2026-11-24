@@ -1,5 +1,6 @@
 // ini bagian Ciko
 
+import { useState } from "react"; // [Orang 2]
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { SkillProfile } from "./components/SkillProfile";
 import { JobExplorer } from "./components/JobExplorer";
@@ -7,6 +8,9 @@ import { ManualApplicationForm } from "./components/ManualApplicationForm";
 import type { Application, WorkMode } from "./types/application";
 import type { JobListing } from "./types/job";
 import { Wishlist } from "./components/Wishlist";
+// Ganes - Fitur 3 & 4
+import { ConflictBanner } from "./components/ConflictBanner";
+import { detectConflicts } from "./utils/conflicts";
 
 import "./App.css";
 
@@ -20,6 +24,12 @@ function App() {
     "applications",
     []
   );
+
+  // Ganes - Tab & conflicts
+  const [activeView, setActiveView] = useState<"explore" | "pipeline">(
+    "explore"
+  );
+  const conflicts = detectConflicts(applications);
 
   function handleSaveToWishlist(job: JobListing) {
     const alreadyExists = applications.some(
@@ -136,13 +146,30 @@ function App() {
         </div>
 
         <nav className="navbar-menu">
-          <span className="nav-item active">
+          {/* Ganes - Tab navigasi */}
+          <button
+            type="button"
+            className={`nav-item${activeView === "explore" ? " active" : ""}`}
+            onClick={() => setActiveView("explore")}
+          >
             Eksplorasi Lowongan
-          </span>
+          </button>
+          <button
+            type="button"
+            className={`nav-item${activeView === "pipeline" ? " active" : ""}`}
+            onClick={() => setActiveView("pipeline")}
+          >
+            Pipeline Lamaran ({applications.length})
+          </button>
         </nav>
       </header>
 
       <main className="dashboard-content">
+        {/* Ganes - Banner bentrok */}
+        <ConflictBanner conflicts={conflicts} />
+
+        {/* Ganes - Tab Eksplorasi */}
+        <div hidden={activeView !== "explore"}>
         <div className="dashboard-layout">
           <aside className="sidebar">
             <SkillProfile
@@ -173,8 +200,31 @@ function App() {
           captainSkills={captainSkills}
           onRemove={handleRemoveWishlist}
         />
+        </div>
 
-        
+        {/* Ganes - Tab Pipeline */}
+        {activeView === "pipeline" && (
+          <section className="main-content">
+            <h2>Pipeline Lamaran</h2>
+            {applications.length === 0 ? (
+              <p>Belum ada lamaran.</p>
+            ) : (
+              applications.map((application) => (
+                <article key={application.id}>
+                  <h3>{application.role}</h3>
+                  <p>{application.company}</p>
+                  <p>Status: {application.status}</p>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveWishlist(application.id)}
+                  >
+                    Hapus
+                  </button>
+                </article>
+              ))
+            )}
+          </section>
+        )}
       </main>
     </div>
   );
