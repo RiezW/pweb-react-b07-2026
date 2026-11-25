@@ -13,6 +13,28 @@ export interface PipelineFilters {
   sort: SortMode;
 }
 
+export function countByStatus(
+  applications: Application[]
+): Record<ApplicationStatus, number> {
+  const initial: Record<ApplicationStatus, number> = {
+    WISHLIST: 0,
+    APPLIED: 0,
+    SCREENING: 0,
+    INTERVIEW: 0,
+    OFFER: 0,
+    REJECTED: 0,
+    GHOSTED: 0,
+  };
+
+  return applications.reduce(
+    (counts, application) => ({
+      ...counts,
+      [application.status]: counts[application.status] + 1,
+    }),
+    initial
+  );
+}
+
 function getInterviewTime(application: Application): number {
   if (application.status !== "INTERVIEW" || !application.interviewDateTime) {
     return Number.NaN;

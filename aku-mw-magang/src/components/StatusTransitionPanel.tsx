@@ -1,11 +1,12 @@
 // Orang 2 - Fitur 4 - Transisi status
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type {
   Application,
   ApplicationStatus,
   WorkMode,
 } from "../types/application";
+import { formatRupiah } from "../utils/format";
 import {
   STATUS_LABELS,
   getAllowedTransitions,
@@ -37,6 +38,17 @@ export function StatusTransitionPanel({
   const [workMode, setWorkMode] = useState<WorkMode>(application.workMode);
   const [errors, setErrors] = useState<TransitionErrors>({});
 
+  const cvRef = useRef<HTMLInputElement>(null);
+  const dateRef = useRef<HTMLInputElement>(null);
+  const interviewRef = useRef<HTMLInputElement>(null);
+  const salaryRef = useRef<HTMLInputElement>(null);
+
+  const salaryNumber = Number(salaryInput);
+  const salaryPreview =
+    salaryInput.trim() !== "" && Number.isFinite(salaryNumber) && salaryNumber > 0
+      ? formatRupiah(salaryNumber)
+      : null;
+
   // Transisi yang sah
   const allowed = getAllowedTransitions(application.status);
 
@@ -62,6 +74,18 @@ export function StatusTransitionPanel({
 
     if (Object.keys(found).length > 0) {
       setErrors(found);
+
+      // Fokus ke input pertama yang bermasalah
+      if (found.cvVersion) {
+        cvRef.current?.focus();
+      } else if (found.appliedDate) {
+        dateRef.current?.focus();
+      } else if (found.interviewDateTime) {
+        interviewRef.current?.focus();
+      } else if (found.salaryOffer) {
+        salaryRef.current?.focus();
+      }
+
       return;
     }
 
@@ -108,6 +132,7 @@ export function StatusTransitionPanel({
               <div className="field">
                 <label htmlFor="tr-cv">Versi CV</label>
                 <input
+                  ref={cvRef}
                   id="tr-cv"
                   type="text"
                   value={cvVersion}
@@ -123,6 +148,7 @@ export function StatusTransitionPanel({
               <div className="field">
                 <label htmlFor="tr-date">Tanggal lamaran</label>
                 <input
+                  ref={dateRef}
                   id="tr-date"
                   type="date"
                   value={appliedDate}
@@ -140,6 +166,7 @@ export function StatusTransitionPanel({
             <div className="field">
               <label htmlFor="tr-interview">Jadwal interview</label>
               <input
+                ref={interviewRef}
                 id="tr-interview"
                 type="datetime-local"
                 value={interviewDateTime}
@@ -157,6 +184,7 @@ export function StatusTransitionPanel({
               <div className="field">
                 <label htmlFor="tr-salary">Uang saku per bulan (Rp)</label>
                 <input
+                  ref={salaryRef}
                   id="tr-salary"
                   type="number"
                   min={0}
@@ -165,6 +193,9 @@ export function StatusTransitionPanel({
                   placeholder="5500000"
                   aria-invalid={errors.salaryOffer !== undefined}
                 />
+                {salaryPreview && (
+                  <p className="field-hint">{salaryPreview} per bulan</p>
+                )}
                 {errors.salaryOffer && (
                   <p className="form-error">{errors.salaryOffer}</p>
                 )}

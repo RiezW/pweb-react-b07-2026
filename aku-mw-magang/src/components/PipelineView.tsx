@@ -1,13 +1,15 @@
 // Orang 2 - Fitur 3 - Pipeline
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Application } from "../types/application";
 import type { InterviewConflict } from "../utils/conflicts";
 import { useNow } from "../hooks/useNow";
 import { calculateSkillMatch } from "../utils/skillMatch";
-import { isGhosting } from "../utils/ghosting";
+import { getDaysSinceUpdate, isGhosting } from "../utils/ghosting";
 import { getMatchClass } from "../utils/matchColor";
+import { formatDateTime, formatRupiah } from "../utils/format";
 import {
+  countByStatus,
   filterAndSortApplications,
   type SortMode,
   type StatusFilter,
@@ -21,6 +23,28 @@ import {
 import { StatusBadge } from "./StatusBadge";
 import { ApplicationDetail } from "./ApplicationDetail";
 import "../styles/pipeline.css";
+
+function describeCard(application: Application, now: number): string | null {
+  switch (application.status) {
+    case "INTERVIEW":
+      return application.interviewDateTime
+        ? `Interview ${formatDateTime(application.interviewDateTime)}`
+        : null;
+    case "OFFER":
+      return application.salaryOffer
+        ? `Offer ${formatRupiah(application.salaryOffer)} per bulan`
+        : null;
+    case "APPLIED":
+    case "SCREENING": {
+      const days = getDaysSinceUpdate(application, now);
+      return days === 0
+        ? "Diperbarui hari ini"
+        : `Tanpa perubahan ${days} hari`;
+    }
+    default:
+      return null;
+  }
+}
 
 interface PipelineViewProps {
   applications: Application[];
@@ -40,6 +64,7 @@ export function PipelineView({
   renderInterviewPrep,
 }: PipelineViewProps) {
   const now = useNow();
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
@@ -47,16 +72,42 @@ export function PipelineView({
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  // Shortcut "/" untuk fokus ke kolom cari
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const target = event.target;
+      const isTyping =
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable);
+
+      if (event.key === "/" && !isTyping) {
+        event.preventDefault();
+        searchRef.current?.focus();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   // Derived state
   const visibleApplications = filterAndSortApplications(
     applications,
     { keyword, status: statusFilter, onlyGhosting, sort: sortMode },
     now
   );
-
+  const statusCounts = countByStatus(applications);
   const ghostingCount = applications.filter((application) =>
     isGhosting(application, now)
   ).length;
+  const hasActiveFilter =
+    keyword.trim() !== "" || statusFilter !== "ALL" || onlyGhosting;
 
   const conflictedIds = new Set(
     conflicts.flatMap((conflict) => [conflict.first.id, conflict.second.id])
@@ -70,13 +121,29 @@ export function PipelineView({
     onUpdateApplication(id, (current) => simulateDaysPassed(current, 15, meta));
   }
 
+  function handleResetFilters() {
+    setKeyword("");
+    setStatusFilter("ALL");
+    setOnlyGhosting(false);
+  }
+
   return (
     <section className="pipeline">
       <div className="pipeline-header">
-        <h2>Pipeline Lamaran</h2>
-        <p>
-          {applications.length} lamaran · {ghostingCount} rawan ghosting
-        </p>
+        <div>
+          <h2>War Room Lamaran</h2>
+          <p>Pantau status, jadwal, dan tindak lanjut setiap lamaran.</p>
+        </div>
+
+        <div className="pipeline-header-stats">
+          <span>{applications.length} lamaran</span>
+          <span className={ghostingCount > 0 ? "warn" : ""}>
+            {ghostingCount} rawan ghosting
+          </span>
+          <span className={conflicts.length > 0 ? "danger" : ""}>
+            {conflicts.length} jadwal bentrok
+          </span>
+        </div>
       </div>
 
       {applications.length === 0 ? (
@@ -89,29 +156,40 @@ export function PipelineView({
         </div>
       ) : (
         <>
+          <div className="status-chips" role="group" aria-label="Filter status">
+            <button
+              type="button"
+              className={`status-chip${statusFilter === "ALL" ? " active" : ""}`}
+              aria-pressed={statusFilter === "ALL"}
+              onClick={() => setStatusFilter("ALL")}
+            >
+              Semua <span>{applications.length}</span>
+            </button>
+
+            {ALL_STATUSES.map((status) => (
+              <button
+                key={status}
+                type="button"
+                className={`status-chip${
+                  statusFilter === status ? " active" : ""
+                }`}
+                aria-pressed={statusFilter === status}
+                onClick={() => setStatusFilter(status)}
+              >
+                {STATUS_LABELS[status]} <span>{statusCounts[status]}</span>
+              </button>
+            ))}
+          </div>
+
           <div className="pipeline-toolbar">
             <input
+              ref={searchRef}
               type="search"
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
-              placeholder="Cari perusahaan, posisi, atau versi CV..."
+              placeholder="Cari perusahaan, posisi, atau versi CV (tekan /)"
               aria-label="Cari lamaran"
             />
-
-            <select
-              value={statusFilter}
-              onChange={(event) =>
-                setStatusFilter(event.target.value as StatusFilter)
-              }
-              aria-label="Filter status"
-            >
-              <option value="ALL">Semua status</option>
-              {ALL_STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {STATUS_LABELS[status]}
-                </option>
-              ))}
-            </select>
 
             <select
               value={sortMode}
@@ -135,10 +213,31 @@ export function PipelineView({
 
           <div className="pipeline-layout">
             <div className="pipeline-list">
+              <p className="pipeline-count">
+                Menampilkan {visibleApplications.length} dari{" "}
+                {applications.length} lamaran
+                {hasActiveFilter && (
+                  <button
+                    type="button"
+                    className="link-button"
+                    onClick={handleResetFilters}
+                  >
+                    Reset filter
+                  </button>
+                )}
+              </p>
+
               {visibleApplications.length === 0 ? (
                 <div className="pipeline-empty">
                   <h3>Tidak ada lamaran yang cocok</h3>
                   <p>Ubah kata kunci atau filter untuk melihat lamaran lain.</p>
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={handleResetFilters}
+                  >
+                    Reset filter
+                  </button>
                 </div>
               ) : (
                 visibleApplications.map((application) => {
@@ -149,6 +248,8 @@ export function PipelineView({
                   const doneCount = application.checklist.filter(
                     (item) => item.done
                   ).length;
+                  const ghosting = isGhosting(application, now);
+                  const info = describeCard(application, now);
                   const canSimulate =
                     application.status === "APPLIED" ||
                     application.status === "SCREENING";
@@ -156,7 +257,7 @@ export function PipelineView({
                   return (
                     <article
                       key={application.id}
-                      className={`pipeline-card pipeline-card-${application.status.toLowerCase()}${
+                      className={`pipeline-card${
                         application.id === selectedId ? " selected" : ""
                       }`}
                     >
@@ -176,6 +277,8 @@ export function PipelineView({
                           <StatusBadge status={application.status} />
                         </div>
 
+                        {info && <p className="pipeline-card-info">{info}</p>}
+
                         <div className="pipeline-card-meta">
                           <span>CV: {application.cvVersion ?? "-"}</span>
                           <span>
@@ -190,10 +293,9 @@ export function PipelineView({
                           </span>
                         </div>
 
-                        {(isGhosting(application, now) ||
-                          conflictedIds.has(application.id)) && (
+                        {(ghosting || conflictedIds.has(application.id)) && (
                           <div className="pipeline-card-flags">
-                            {isGhosting(application, now) && (
+                            {ghosting && (
                               <span className="flag-badge flag-ghost">
                                 Rawan Ghosting
                               </span>

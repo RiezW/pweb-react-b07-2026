@@ -8,9 +8,11 @@ import { ManualApplicationForm } from "./components/ManualApplicationForm";
 import type { Application, WorkMode } from "./types/application";
 import type { JobListing } from "./types/job";
 import { Wishlist } from "./components/Wishlist";
-// Ganes - Fitur 3 & 4
+// [Orang 2] Fitur 3 & 4
+import { PipelineView } from "./components/PipelineView";
 import { ConflictBanner } from "./components/ConflictBanner";
 import { detectConflicts } from "./utils/conflicts";
+import type { ApplicationUpdater } from "./utils/applicationActions";
 
 import "./App.css";
 
@@ -25,11 +27,20 @@ function App() {
     []
   );
 
-  // Ganes - Tab & conflicts
+  // [Orang 2] Tab & conflicts
   const [activeView, setActiveView] = useState<"explore" | "pipeline">(
     "explore"
   );
   const conflicts = detectConflicts(applications);
+
+  // [Orang 2] Update lamaran
+  function handleUpdateApplication(id: string, updater: ApplicationUpdater) {
+    setApplications((current) =>
+      current.map((application) =>
+        application.id === id ? updater(application) : application
+      )
+    );
+  }
 
   function handleSaveToWishlist(job: JobListing) {
     const alreadyExists = applications.some(
@@ -146,7 +157,7 @@ function App() {
         </div>
 
         <nav className="navbar-menu">
-          {/* Ganes - Tab navigasi */}
+          {/* [Orang 2] Tab navigasi */}
           <button
             type="button"
             className={`nav-item${activeView === "explore" ? " active" : ""}`}
@@ -165,10 +176,10 @@ function App() {
       </header>
 
       <main className="dashboard-content">
-        {/* Ganes - Banner bentrok */}
+        {/* [Orang 2] Banner bentrok */}
         <ConflictBanner conflicts={conflicts} />
 
-        {/* Ganes - Tab Eksplorasi */}
+        {/* [Orang 2] Tab Eksplorasi */}
         <div hidden={activeView !== "explore"}>
         <div className="dashboard-layout">
           <aside className="sidebar">
@@ -202,28 +213,15 @@ function App() {
         />
         </div>
 
-        {/* Ganes - Tab Pipeline */}
+        {/* [Orang 2] Tab Pipeline */}
         {activeView === "pipeline" && (
-          <section className="main-content">
-            <h2>Pipeline Lamaran</h2>
-            {applications.length === 0 ? (
-              <p>Belum ada lamaran.</p>
-            ) : (
-              applications.map((application) => (
-                <article key={application.id}>
-                  <h3>{application.role}</h3>
-                  <p>{application.company}</p>
-                  <p>Status: {application.status}</p>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveWishlist(application.id)}
-                  >
-                    Hapus
-                  </button>
-                </article>
-              ))
-            )}
-          </section>
+          <PipelineView
+            applications={applications}
+            captainSkills={captainSkills}
+            conflicts={conflicts}
+            onUpdateApplication={handleUpdateApplication}
+            onDeleteApplication={handleRemoveWishlist}
+          />
         )}
       </main>
     </div>

@@ -6,8 +6,8 @@ import type {
   ApplicationStatus,
 } from "../types/application";
 import { calculateSkillMatch } from "../utils/skillMatch";
-import { isGhosting } from "../utils/ghosting";
-import { formatDateTime } from "../utils/format";
+import { getDaysSinceUpdate, isGhosting } from "../utils/ghosting";
+import { formatDate, formatDateTime, formatRupiah } from "../utils/format";
 import { STATUS_LABELS, type TransitionPayload } from "../utils/stateMachine";
 import {
   addActivityNote,
@@ -54,6 +54,7 @@ export function ApplicationDetail({
 }: ApplicationDetailProps) {
   const match = calculateSkillMatch(captainSkills, application.requiredSkills);
   const ghosting = isGhosting(application, now);
+  const daysIdle = getDaysSinceUpdate(application, now);
   const currentStage = STAGES.indexOf(application.status);
   const canSimulate =
     application.status === "APPLIED" || application.status === "SCREENING";
@@ -105,19 +106,18 @@ export function ApplicationDetail({
             <p>
               {application.company} · {application.workMode} · CV:{" "}
               {application.cvVersion ?? "-"}
-              {application.status === "INTERVIEW" &&
-                application.interviewDateTime &&
-                ` · Jadwal interview: ${formatDateTime(
-                  application.interviewDateTime
-                )}`}
             </p>
           </div>
         </div>
 
         <div className="detail-actions">
           <StatusBadge status={application.status} />
-          {ghosting && <span className="flag-badge flag-ghost">Rawan Ghosting</span>}
-          {hasConflict && <span className="flag-badge flag-conflict">Jadwal bentrok</span>}
+          {ghosting && (
+            <span className="flag-badge flag-ghost">Rawan Ghosting</span>
+          )}
+          {hasConflict && (
+            <span className="flag-badge flag-conflict">Jadwal bentrok</span>
+          )}
 
           {canSimulate && (
             <button
@@ -139,6 +139,42 @@ export function ApplicationDetail({
         </div>
       </header>
 
+      <dl className="detail-info">
+        <div>
+          <dt>Terakhir diperbarui</dt>
+          <dd>{formatDateTime(application.lastUpdatedAt)}</dd>
+        </div>
+        <div>
+          <dt>Tanggal lamaran</dt>
+          <dd>
+            {application.appliedDate ? formatDate(application.appliedDate) : "-"}
+          </dd>
+        </div>
+        <div>
+          <dt>Jadwal interview</dt>
+          <dd>
+            {application.interviewDateTime
+              ? formatDateTime(application.interviewDateTime)
+              : "-"}
+          </dd>
+        </div>
+        <div>
+          <dt>Uang saku offer</dt>
+          <dd>
+            {application.salaryOffer
+              ? formatRupiah(application.salaryOffer)
+              : "-"}
+          </dd>
+        </div>
+      </dl>
+
+      {ghosting && (
+        <p className="ghost-note" role="status">
+          Tidak ada perubahan status selama {daysIdle} hari. Pertimbangkan
+          follow-up ke HRD, lalu catat hasilnya di riwayat aktivitas.
+        </p>
+      )}
+
       <div className="detail-body">
         <div className="detail-column">
           <section className="detail-block">
@@ -156,7 +192,9 @@ export function ApplicationDetail({
                 <li
                   key={stage}
                   className={index <= currentStage ? "reached" : ""}
-                  aria-current={stage === application.status ? "step" : undefined}
+                  aria-current={
+                    stage === application.status ? "step" : undefined
+                  }
                 >
                   {index + 1}. {STATUS_LABELS[stage]}
                 </li>
@@ -184,21 +222,40 @@ export function ApplicationDetail({
           <section className="detail-block">
             <div className="detail-block-header">
               <h4>Kecocokan skill</h4>
-              <span className="progress-text">{match.matchScore}% cocok</span>
+              <span
+                className={`match-badge ${
+                  match.matchScore >= 70
+                    ? "match-green"
+                    : match.matchScore >= 40
+                      ? "match-yellow"
+                      : "match-red"
+                }`}
+              >
+                {match.matchScore}% cocok
+              </span>
             </div>
 
-            <p className="skill-line">
-              <strong>Cocok:</strong>{" "}
-              {match.matchedSkills.length > 0
-                ? match.matchedSkills.join(", ")
-                : "Belum ada"}
-            </p>
-            <p className="skill-line">
-              <strong>Belum dikuasai:</strong>{" "}
-              {match.missingSkills.length > 0
-                ? match.missingSkills.join(", ")
-                : "Tidak ada"}
-            </p>
+            {application.requiredSkills.length === 0 ? (
+              <p className="detail-empty">Belum ada skill yang dicantumkan.</p>
+            ) : (
+              <>
+                <div className="skill-chips">
+                  {match.matchedSkills.map((skill, index) => (
+                    <span key={`m-${skill}-${index}`} className="skill-chip matched">
+                      {skill}
+                    </span>
+                  ))}
+                  {match.missingSkills.map((skill, index) => (
+                    <span key={`x-${skill}-${index}`} className="skill-chip missing">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+                <p className="skill-legend">
+                  Biru sudah dikuasai, merah putus-putus belum dikuasai.
+                </p>
+              </>
+            )}
           </section>
 
           <ActivityLogPanel
