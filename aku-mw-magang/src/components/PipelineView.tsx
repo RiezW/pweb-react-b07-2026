@@ -1,4 +1,4 @@
-// Orang 2 - Fitur 3 - Pipeline
+// Ridwan
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Application } from "../types/application";
@@ -22,6 +22,7 @@ import {
 } from "../utils/applicationActions";
 import { StatusBadge } from "./StatusBadge";
 import { ApplicationDetail } from "./ApplicationDetail";
+import { InterviewPrepTimer } from "./InterviewPrepTimer";
 import "../styles/pipeline.css";
 
 function describeCard(application: Application, now: number): string | null {
@@ -343,7 +344,13 @@ export function PipelineView({
                   onUpdate={onUpdateApplication}
                   onSimulate={handleSimulate}
                   onDelete={onDeleteApplication}
-                  extraPanel={renderInterviewPrep?.(selected)}
+                  extraPanel={
+                    renderInterviewPrep ? (
+                      renderInterviewPrep(selected)
+                    ) : (
+                      <InterviewPrepTimer key={selected.id} />
+                    )
+                  }
                 />
               )}
             </div>
@@ -353,3 +360,5 @@ export function PipelineView({
     </section>
   );
 }
+
+// Ridwan

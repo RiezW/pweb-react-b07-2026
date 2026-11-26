@@ -1,18 +1,26 @@
-// ini bagian Ciko
+// ciko
 
 import { useEffect, useState } from "react";
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [value, setValue] = useState<T>(() => {
-    const saved = localStorage.getItem(key);
-    return saved ? (JSON.parse(saved) as T) : initialValue;
+    try {
+      const saved = localStorage.getItem(key);
+      return saved ? (JSON.parse(saved) as T) : initialValue;
+    } catch {
+      return initialValue;
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value));
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // Abaikan jika penyimpanan penuh
+    }
   }, [key, value]);
 
   return [value, setValue] as const;
 }
 
-// ini bagian ciko
+// ciko

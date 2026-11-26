@@ -1,6 +1,6 @@
 // ini bagian Ciko
 
-import { useState } from "react"; // [Orang 2]
+import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { SkillProfile } from "./components/SkillProfile";
 import { JobExplorer } from "./components/JobExplorer";
@@ -8,11 +8,13 @@ import { ManualApplicationForm } from "./components/ManualApplicationForm";
 import type { Application, WorkMode } from "./types/application";
 import type { JobListing } from "./types/job";
 import { Wishlist } from "./components/Wishlist";
-// [Orang 2] Fitur 3 & 4
 import { PipelineView } from "./components/PipelineView";
 import { ConflictBanner } from "./components/ConflictBanner";
 import { detectConflicts } from "./utils/conflicts";
 import type { ApplicationUpdater } from "./utils/applicationActions";
+import { DashboardStats } from "./components/DashboardStats";
+import { OfferComparator } from "./components/OfferComparator";
+import { UndoToast } from "./components/UndoToast";
 
 import "./App.css";
 
@@ -27,13 +29,28 @@ function App() {
     []
   );
 
-  // [Orang 2] Tab & conflicts
-  const [activeView, setActiveView] = useState<"explore" | "pipeline">(
-    "explore"
-  );
-  const conflicts = detectConflicts(applications);
+  const [activeView, setActiveView] = useState<
+    "explore" | "pipeline" | "comparator"
+  >("explore");
 
-  // [Orang 2] Update lamaran
+  // Fitur 6: Undo Delete (5 detik) menggunakan useRef
+  const [deletedApplication, setDeletedApplication] =
+    useState<Application | null>(null);
+  const deleteTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (deleteTimerRef.current !== null) {
+        window.clearTimeout(deleteTimerRef.current);
+      }
+    };
+  }, []);
+
+  const conflicts = detectConflicts(applications);
+  const offerCount = applications.filter(
+    (app) => app.status === "OFFER"
+  ).length;
+
   function handleUpdateApplication(id: string, updater: ApplicationUpdater) {
     setApplications((current) =>
       current.map((application) =>
@@ -56,12 +73,11 @@ function App() {
 
     const location = job.candidate_required_location.toLowerCase();
 
-    const workMode =
-      location.includes("hybrid")
-        ? "Hybrid"
-        : location.includes("onsite")
-          ? "Onsite"
-          : "Remote";
+    const workMode = location.includes("hybrid")
+      ? "Hybrid"
+      : location.includes("onsite")
+        ? "Onsite"
+        : "Remote";
 
     const timestamp = new Date().toISOString();
 
@@ -85,8 +101,6 @@ function App() {
 
     setApplications((current) => [...current, newApplication]);
   }
-
-  // ini bagian Ciko
 
   function handleManualApplication(
     company: string,
@@ -122,8 +136,6 @@ function App() {
     setApplications((current) => [...current, newApplication]);
   }
 
-  // ini bagian ciko
-
   function handleAddSkill(skill: string) {
     setCaptainSkills((currentSkills) => [...currentSkills, skill]);
   }
@@ -140,12 +152,51 @@ function App() {
     });
   }
 
-  function handleRemoveWishlist(applicationId: string) {
+  function handleDeleteApplication(applicationId: string) {
+    const target = applications.find((app) => app.id === applicationId);
+    if (!target) {
+      return;
+    }
+
+    // Wajib bersihkan timer lama jika menghapus 2x berturut-turut dalam < 5 detik
+    if (deleteTimerRef.current !== null) {
+      window.clearTimeout(deleteTimerRef.current);
+    }
+
+    setDeletedApplication(target);
     setApplications((current) =>
-      current.filter(
-        (application) => application.id !== applicationId
-      )
+      current.filter((application) => application.id !== applicationId)
     );
+
+    deleteTimerRef.current = window.setTimeout(() => {
+      setDeletedApplication(null);
+      deleteTimerRef.current = null;
+    }, 5000);
+  }
+
+  function handleUndoDelete() {
+    if (!deletedApplication) {
+      return;
+    }
+
+    if (deleteTimerRef.current !== null) {
+      window.clearTimeout(deleteTimerRef.current);
+      deleteTimerRef.current = null;
+    }
+
+    setApplications((current) => {
+      const exists = current.some((app) => app.id === deletedApplication.id);
+      return exists ? current : [...current, deletedApplication];
+    });
+    setDeletedApplication(null);
+  }
+
+  function handleDismissToast() {
+    if (deleteTimerRef.current !== null) {
+      window.clearTimeout(deleteTimerRef.current);
+      deleteTimerRef.current = null;
+    }
+    setDeletedApplication(null);
   }
 
   return (
@@ -157,7 +208,6 @@ function App() {
         </div>
 
         <nav className="navbar-menu">
-          {/* [Orang 2] Tab navigasi */}
           <button
             type="button"
             className={`nav-item${activeView === "explore" ? " active" : ""}`}
@@ -172,62 +222,78 @@ function App() {
           >
             Pipeline Lamaran ({applications.length})
           </button>
+          <button
+            type="button"
+            className={`nav-item${activeView === "comparator" ? " active" : ""}`}
+            onClick={() => setActiveView("comparator")}
+          >
+            Offer Comparator ({offerCount})
+          </button>
         </nav>
       </header>
 
       <main className="dashboard-content">
-        {/* [Orang 2] Banner bentrok */}
         <ConflictBanner conflicts={conflicts} />
 
-        {/* [Orang 2] Tab Eksplorasi */}
+        <DashboardStats applications={applications} />
+
         <div hidden={activeView !== "explore"}>
-        <div className="dashboard-layout">
-          <aside className="sidebar">
-            <SkillProfile
-              skills={captainSkills}
-              onAddSkill={handleAddSkill}
-              onRemoveSkill={handleRemoveSkill}
-            />
-          </aside>
+          <div className="dashboard-layout">
+            <aside className="sidebar">
+              <SkillProfile
+                skills={captainSkills}
+                onAddSkill={handleAddSkill}
+                onRemoveSkill={handleRemoveSkill}
+              />
+            </aside>
 
-          <section className="main-content">
-            <JobExplorer
-              captainSkills={captainSkills}
-              applications={applications}
-              onSaveToWishlist={handleSaveToWishlist}
-            />
-          </section>
+            <section className="main-content">
+              <JobExplorer
+                captainSkills={captainSkills}
+                applications={applications}
+                onSaveToWishlist={handleSaveToWishlist}
+              />
+            </section>
+          </div>
+
+          <ManualApplicationForm
+            applications={applications}
+            onSubmitApplication={handleManualApplication}
+          />
+
+          <Wishlist
+            applications={applications}
+            captainSkills={captainSkills}
+            onRemove={handleDeleteApplication}
+          />
         </div>
 
-        
-
-        <ManualApplicationForm
-          applications={applications}
-          onSubmitApplication={handleManualApplication}
-        />
-
-        <Wishlist
-          applications={applications}
-          captainSkills={captainSkills}
-          onRemove={handleRemoveWishlist}
-        />
-        </div>
-
-        {/* [Orang 2] Tab Pipeline */}
         {activeView === "pipeline" && (
           <PipelineView
             applications={applications}
             captainSkills={captainSkills}
             conflicts={conflicts}
             onUpdateApplication={handleUpdateApplication}
-            onDeleteApplication={handleRemoveWishlist}
+            onDeleteApplication={handleDeleteApplication}
+          />
+        )}
+
+        {activeView === "comparator" && (
+          <OfferComparator
+            applications={applications}
+            captainSkills={captainSkills}
           />
         )}
       </main>
+
+      <UndoToast
+        deletedApplication={deletedApplication}
+        onUndo={handleUndoDelete}
+        onDismiss={handleDismissToast}
+      />
     </div>
   );
 }
 
 export default App;
-
 // ini bagian ciko
